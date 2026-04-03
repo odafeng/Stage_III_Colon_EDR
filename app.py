@@ -40,9 +40,6 @@ FEATURE_COL_PATH = os.path.join(MODEL_DIR, "final_feature_columns.pkl")
 IMPUTER_PATH     = os.path.join(MODEL_DIR, "final_knn_imputer.pkl")
 MODEL_PATH       = os.path.join(MODEL_DIR, "final_model_calibrated.pkl")
 
-st.write("MODEL_DIR:", MODEL_DIR)
-st.write("Files in MODEL_DIR:", os.listdir(MODEL_DIR))
-
 
 AJCC_OPTIONS = ["IIIA", "IIIB", "IIIC"]
 DIFF_OPTIONS = [
