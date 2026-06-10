@@ -64,3 +64,8 @@ conda_env/
 *.log
 .jupyter/
 tests/
+# Tutorial video build artifacts
+video_build/node_modules/
+video_build/clips/
+video_build/output/
+tutorial_demo/_html/
