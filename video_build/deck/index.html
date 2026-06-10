@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<title>用 AI 從零開始做臨床研究</title>
+<style>
+:root{
+  --bg0:#070b16; --bg1:#0e1430; --bg2:#141c3d;
+  --accent:#4f9cff; --accent2:#ffa94d; --green:#2ee6a6; --danger:#ff5d6c; --purple:#9b8cff;
+  --text:#eef2fb; --muted:#9aa4bd; --line:rgba(255,255,255,.10);
+  --card:rgba(255,255,255,.045);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1920px;height:1080px;overflow:hidden;background:var(--bg0);
+  font-family:'WenQuanYi Zen Hei','Noto Sans TC',system-ui,'PingFang TC','Microsoft JhengHei',sans-serif;color:var(--text)}
+#stage{position:relative;width:1920px;height:1080px;overflow:hidden}
+
+/* animated background */
+.bg{position:absolute;inset:0;will-change:auto;background:
+  radial-gradient(1100px 700px at 18% 12%, rgba(79,156,255,.20), transparent 60%),
+  radial-gradient(1000px 700px at 85% 88%, rgba(155,140,255,.18), transparent 60%),
+  linear-gradient(160deg,var(--bg0),var(--bg1) 55%,var(--bg2));}
+.blob{position:absolute;border-radius:50%;filter:blur(44px);opacity:.45}
+.blob.b1{width:520px;height:520px;left:-120px;top:-100px;background:#2f6df6;animation-delay:0s}
+.blob.b2{width:480px;height:480px;right:-120px;bottom:-120px;background:#8a5cff;animation-delay:-6s}
+.blob.b3{width:360px;height:360px;left:60%;top:8%;background:#1fb6a8;animation-delay:-11s}
+@keyframes drift{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(40px,30px) scale(1.12)}}
+.grid-ov{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.025) 1px,transparent 1px);background-size:64px 64px;mask-image:radial-gradient(circle at 50% 50%,black,transparent 80%)}
+
+/* brand + progress + caption */
+.brand{position:absolute;left:60px;top:46px;display:flex;align-items:center;gap:14px;z-index:40;opacity:.9}
+.brand .logo{width:38px;height:38px;border-radius:10px;background:linear-gradient(135deg,var(--accent),var(--purple));box-shadow:0 6px 22px rgba(79,156,255,.45)}
+.brand .t{font-weight:700;font-size:20px;letter-spacing:.3px}
+.brand .t small{display:block;font-weight:400;font-size:13px;color:var(--muted);letter-spacing:2px}
+.progress{position:absolute;left:0;top:0;height:5px;width:0;background:linear-gradient(90deg,var(--accent),var(--green));z-index:50;box-shadow:0 0 16px rgba(79,156,255,.6);transition:width .25s linear}
+.caption{position:absolute;left:50%;transform:translateX(-50%);bottom:64px;z-index:45;max-width:1500px;text-align:center;
+  font-size:30px;font-weight:500;line-height:1.5;color:#f3f6ff;text-shadow:0 2px 18px rgba(0,0,0,.6);opacity:0;transition:opacity .4s}
+.caption.show{opacity:1}
+.caption .pill{background:rgba(10,14,28,.55);border:1px solid var(--line);border-radius:16px;padding:14px 28px;display:inline-block}
+
+/* scenes */
+.scene{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:120px 130px 170px;opacity:0;visibility:hidden;transform:scale(1.02)}
+.scene.active{opacity:1;visibility:visible;transform:scale(1);transition:opacity .7s ease,transform .7s ease}
+.scene.leaving{opacity:0;transform:scale(.985);transition:opacity .55s ease,transform .55s ease}
+
+.anim{opacity:0;transform:translateY(26px);transition:opacity .7s cubic-bezier(.2,.7,.2,1),transform .7s cubic-bezier(.2,.7,.2,1)}
+.scene.active .anim{opacity:1;transform:none}
+
+h1{font-size:96px;font-weight:900;line-height:1.05;letter-spacing:-1px;text-align:center}
+.grad{background:linear-gradient(100deg,#7db4ff,#b9a8ff 55%,#7df0c8);-webkit-background-clip:text;background-clip:text;color:transparent}
+.sub{font-size:38px;color:var(--muted);font-weight:500;margin-top:30px;text-align:center}
+.kicker{font-size:24px;letter-spacing:8px;color:var(--accent);font-weight:700;text-transform:uppercase}
+.tag{margin-top:48px;font-size:20px;color:var(--muted);border:1px solid var(--line);border-radius:999px;padding:10px 22px;background:var(--card)}
+
+/* section divider */
+.divider .num{font-size:240px;font-weight:900;line-height:1;background:linear-gradient(160deg,rgba(255,255,255,.16),rgba(255,255,255,.02));-webkit-background-clip:text;background-clip:text;color:transparent}
+.divider .ttl{font-size:74px;font-weight:900;margin-top:-30px}
+.divider .step-tag{font-size:26px;letter-spacing:6px;color:var(--accent);font-weight:700}
+
+/* agenda */
+.agenda{display:flex;flex-direction:column;gap:22px;width:1100px}
+.arow{display:flex;align-items:center;gap:28px;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:26px 34px}
+.arow .n{width:60px;height:60px;flex:0 0 60px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:28px;background:linear-gradient(135deg,var(--accent),var(--purple))}
+.arow .txt{font-size:32px;font-weight:600}
+.arow .txt small{display:block;font-size:20px;color:var(--muted);font-weight:400;margin-top:4px}
+
+/* folder tree */
+.tree{font-family:'DejaVu Sans Mono','JetBrains Mono',monospace;font-size:40px;line-height:1.85;background:var(--card);border:1px solid var(--line);border-radius:20px;padding:46px 60px;min-width:760px}
+.tree .row{display:flex;align-items:center;gap:18px}
+.tree .ico{font-size:38px}
+.tree .dim{color:var(--muted)}
+.tree .hl{color:var(--accent)}
+
+/* terminal */
+.term{width:1280px;background:#0a1020;border:1px solid var(--line);border-radius:18px;overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,.5)}
+.term .bar{display:flex;align-items:center;gap:10px;padding:18px 22px;background:#0d1426;border-bottom:1px solid var(--line)}
+.term .bar i{width:15px;height:15px;border-radius:50%;display:inline-block}
+.term .bar .r{background:#ff5f57}.term .bar .y{background:#febc2e}.term .bar .g{background:#28c840}
+.term .bar span{margin-left:14px;color:var(--muted);font:600 18px 'DejaVu Sans Mono','JetBrains Mono',monospace}
+.term .body{padding:34px 40px;font-family:'DejaVu Sans Mono','JetBrains Mono',monospace;font-size:30px;line-height:1.7;min-height:360px}
+.term .line{white-space:pre-wrap}
+.term .pr{color:var(--green)}.term .cm{color:#eaf0ff}.term .out{color:var(--muted)}.term .ok{color:var(--green)}
+.cursor{display:inline-block;width:14px;height:32px;background:var(--accent);vertical-align:-5px;animation:blink 1s steps(1) infinite}
+@keyframes blink{50%{opacity:0}}
+
+/* github card */
+.ghcard{width:760px;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:34px 38px}
+.ghcard .top{display:flex;align-items:center;gap:16px;font-size:30px;font-weight:700}
+.ghcard .repo{color:var(--accent)}
+.ghcard .desc{color:var(--muted);font-size:22px;margin:16px 0 22px}
+.ghcard .meta{display:flex;gap:30px;color:var(--muted);font-size:22px}
+.ghcard .dot{display:inline-block;width:16px;height:16px;border-radius:50%;background:var(--accent2);vertical-align:-1px;margin-right:8px}
+
+/* chat */
+.chat{display:flex;flex-direction:column;gap:26px;width:1280px}
+.bub{max-width:78%;padding:28px 34px;border-radius:22px;font-size:30px;line-height:1.55}
+.bub.user{align-self:flex-end;background:linear-gradient(135deg,#2f6df6,#3a86ff);border-bottom-right-radius:6px}
+.bub.ai{align-self:flex-start;background:var(--card);border:1px solid var(--line);border-bottom-left-radius:6px}
+.bub .who{font-size:19px;letter-spacing:2px;text-transform:uppercase;opacity:.7;margin-bottom:8px;font-weight:700}
+.bub code{font-family:'DejaVu Sans Mono','JetBrains Mono',monospace;background:rgba(0,0,0,.25);padding:2px 10px;border-radius:8px;color:var(--green)}
+
+/* benefit cards */
+.cards{display:flex;gap:40px}
+.bcard{width:560px;background:var(--card);border:1px solid var(--line);border-radius:24px;padding:48px;position:relative;overflow:hidden}
+.bcard::before{content:'';position:absolute;left:0;top:0;height:6px;width:100%;background:linear-gradient(90deg,var(--accent),var(--green))}
+.bcard .ic{font-size:64px}
+.bcard h3{font-size:42px;margin:22px 0 16px;font-weight:800}
+.bcard p{font-size:26px;color:var(--muted);line-height:1.6}
+
+/* split code + figure */
+.split{display:flex;gap:44px;align-items:center}
+.codecard{width:760px;background:#0a1020;border:1px solid var(--line);border-radius:18px;overflow:hidden}
+.codecard .bar{padding:16px 22px;background:#0d1426;border-bottom:1px solid var(--line);font:600 18px 'DejaVu Sans Mono','JetBrains Mono',monospace;color:var(--muted)}
+.codecard pre{padding:30px 34px;font-family:'DejaVu Sans Mono','JetBrains Mono',monospace;font-size:25px;line-height:1.7;white-space:pre-wrap}
+.k{color:#ff9f43}.s{color:#7df0c8}.c{color:var(--muted)}.f{color:#7db4ff}
+.figwrap{width:560px;background:#fff;border-radius:18px;padding:14px;box-shadow:0 30px 80px rgba(0,0,0,.5)}
+.figwrap img{width:100%;display:block;border-radius:8px}
+.changechip{position:absolute;font-size:22px;background:var(--green);color:#04201a;font-weight:800;padding:10px 18px;border-radius:12px;opacity:0;transform:translateY(10px)}
+
+/* figure grid */
+.fgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:28px;width:1500px}
+.fgrid .fg{background:#fff;border-radius:14px;padding:10px;box-shadow:0 16px 40px rgba(0,0,0,.4)}
+.fgrid .fg img{width:100%;display:block;border-radius:6px}
+
+/* warning */
+.warn{width:1400px;border:2px solid var(--danger);background:linear-gradient(160deg,rgba(255,93,108,.14),rgba(255,93,108,.04));border-radius:26px;padding:64px 72px;text-align:center}
+.warn .ic{font-size:96px}
+.warn h2{font-size:62px;font-weight:900;margin:20px 0 18px;color:#ffd1d6}
+.warn p{font-size:32px;color:#ffe3e6;line-height:1.6}
+.warn .small{font-size:24px;color:var(--muted);margin-top:26px}
+
+/* recap checklist */
+.recap{display:flex;flex-direction:column;gap:20px;width:1080px}
+.crow{display:flex;align-items:center;gap:26px;font-size:34px;font-weight:600;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:24px 32px}
+.crow .ck{width:54px;height:54px;border-radius:50%;border:3px solid var(--green);display:flex;align-items:center;justify-content:center;color:var(--green);font-size:30px;font-weight:900;flex:0 0 54px}
+
+.center{text-align:center}
+.mt{margin-top:42px}
+</style>
+</head>
+<body>
+<div id="stage">
+  <div class="bg"><div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div></div>
+  <div class="grid-ov"></div>
+  <div class="progress" id="prog"></div>
+  <div class="brand"><div class="logo"></div><div class="t">臨床研究工作流程<small>AI · REPRODUCIBLE · STEP BY STEP</small></div></div>
+
+  <!-- 1 TITLE -->
+  <section class="scene" data-dur="6000">
+    <div class="kicker anim">A Step-by-Step Guide</div>
+    <h1 class="anim mt">用 AI 從零開始<br><span class="grad">做一篇臨床研究</span></h1>
+    <div class="sub anim">給住院醫師 ＆ 沒寫過程式的你</div>
+    <div class="tag anim">⚠️ 影片所有資料皆為虛構示範，不含任何真實病人資料</div>
+  </section>
+
+  <!-- 2 AGENDA -->
+  <section class="scene" data-dur="7500">
+    <div class="kicker anim center" style="margin-bottom:40px">今天的五個步驟</div>
+    <div class="agenda">
+      <div class="arow anim"><div class="n">1</div><div class="txt">建立結構化資料夾<small>Data · Figures · Notebooks · Tables</small></div></div>
+      <div class="arow anim"><div class="n">2</div><div class="txt">建立 GitHub Repo，用 Git 版本控制<small>讓每一次修改都有紀錄、可回溯</small></div></div>
+      <div class="arow anim"><div class="n">3</div><div class="txt">用 AI Agent 溝通你的研究需求<small>說明 Outcome＆方法 → 要求寫成 Notebooks</small></div></div>
+      <div class="arow anim"><div class="n">4</div><div class="txt">撰寫 Manuscript ＆ 尋找文獻<small>各自發揮創意</small></div></div>
+      <div class="arow anim"><div class="n">5</div><div class="txt">小心 Reference Hallucination<small>文獻幻覺：每一篇都要查證</small></div></div>
+    </div>
+  </section>
+
+  <!-- 3 DIVIDER 1 -->
+  <section class="scene divider" data-dur="3200">
+    <div class="num anim">01</div>
+    <div class="step-tag anim">STEP ONE</div>
+    <div class="ttl anim">建立結構化資料夾</div>
+  </section>
+
+  <!-- 4 FOLDER TREE -->
+  <section class="scene" data-dur="8000">
+    <div class="tree">
+      <div class="row anim"><span class="ico">📁</span><span class="hl">my_research/</span></div>
+      <div class="row anim" style="padding-left:48px"><span class="ico">📂</span><span>Data</span><span class="dim">　# 原始 / 處理後資料</span></div>
+      <div class="row anim" style="padding-left:48px"><span class="ico">📊</span><span>Figures</span><span class="dim">　# 圖（由 Notebook 產生）</span></div>
+      <div class="row anim" style="padding-left:48px"><span class="ico">📓</span><span class="hl">Notebooks</span><span class="dim">　# ⭐ 分析過程（.ipynb）</span></div>
+      <div class="row anim" style="padding-left:48px"><span class="ico">📋</span><span>Tables</span><span class="dim">　# 表（由 Notebook 產生）</span></div>
+    </div>
+  </section>
+
+  <!-- 5 TERMINAL mkdir -->
+  <section class="scene" data-dur="7000">
+    <div class="term anim">
+      <div class="bar"><i class="r"></i><i class="y"></i><i class="g"></i><span>bash — my_research</span></div>
+      <div class="body">
+        <div class="line"><span class="pr">$ </span><span class="cm" data-tw="mkdir -p Data Figures Notebooks Tables"></span></div>
+        <div class="line tw-out"><span class="pr">$ </span><span class="cm">ls</span></div>
+        <div class="line tw-out"><span class="out">Data  Figures  Notebooks  Tables</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6 DIVIDER 2 -->
+  <section class="scene divider" data-dur="3200">
+    <div class="num anim">02</div>
+    <div class="step-tag anim">STEP TWO</div>
+    <div class="ttl anim">GitHub ＋ Git 版本控制</div>
+  </section>
+
+  <!-- 7 GIT TERMINAL + CARD -->
+  <section class="scene" data-dur="10000">
+    <div class="split">
+      <div class="term anim" style="width:980px">
+        <div class="bar"><i class="r"></i><i class="y"></i><i class="g"></i><span>git</span></div>
+        <div class="body" style="font-size:27px;min-height:320px">
+          <div class="line"><span class="pr">$ </span><span class="cm" data-tw="git init"></span></div>
+          <div class="line tw-out"><span class="pr">$ </span><span class="cm">git add .</span></div>
+          <div class="line tw-out"><span class="pr">$ </span><span class="cm">git commit -m "first commit"</span></div>
+          <div class="line tw-out"><span class="pr">$ </span><span class="cm">git push origin main</span></div>
+          <div class="line tw-out"><span class="ok">✓ 已上傳，版本紀錄完成</span></div>
+        </div>
+      </div>
+      <div class="ghcard anim">
+        <div class="top">🐙 <span>your-name /</span> <span class="repo">my_research</span></div>
+        <div class="desc">Reproducible ML workflow for clinical research</div>
+        <div class="meta"><span><span class="dot"></span>Python</span><span>⭐ 0</span><span>🔱 0</span></div>
+        <div class="desc" style="margin-top:22px">每一次 commit＝一個可回溯的存檔點<br>電腦壞了、改壞了，都能救回來。</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 8 DIVIDER 3 -->
+  <section class="scene divider" data-dur="3200">
+    <div class="num anim">03</div>
+    <div class="step-tag anim">STEP THREE</div>
+    <div class="ttl anim">與 AI Agent 溝通需求</div>
+  </section>
+
+  <!-- 9 CHAT -->
+  <section class="scene" data-dur="12000">
+    <div class="chat">
+      <div class="bub user anim"><div class="who">YOU</div>我有 Stage III 大腸癌的資料，想預測 18 個月內的早期遠端復發 (EDR-18)。請用 XGBoost＋交叉驗證，做特徵選擇與外部驗證。</div>
+      <div class="bub ai anim"><div class="who">AI AGENT</div>了解。我會分成三個階段：特徵選擇 → 模型開發與校準 → 外部驗證。<br>👉 <b>每一個階段都寫成獨立的 Notebook（<code>.ipynb</code>），讓你能逐格重現與修改。</b></div>
+      <div class="bub user anim"><div class="who">YOU</div>對！而且請把<b>畫圖的程式碼也放進 Notebook</b>，之後我要改字、改顏色比較方便。</div>
+    </div>
+  </section>
+
+  <!-- 10 WHY NOTEBOOKS -->
+  <section class="scene" data-dur="9000">
+    <div class="kicker anim center" style="margin-bottom:46px">為什麼一定要寫成 Notebook？</div>
+    <div class="cards">
+      <div class="bcard anim"><div class="ic">🔁</div><h3>可重現性</h3><p>Reviewer 要求修改？<br>只要改 Notebook 裡那一格 Script、重跑，<br>就能得到一致、可重現的結果。</p></div>
+      <div class="bcard anim"><div class="ic">🛠️</div><h3>方便修正</h3><p>連「圖表」都用 Notebook 產生。<br>之後要改文字、調細節，<br>重現與修改都變得很容易。</p></div>
+    </div>
+  </section>
+
+  <!-- 11 REPRO DEMO: code -> figure -->
+  <section class="scene" data-dur="10000">
+    <div class="kicker anim center" style="margin-bottom:40px">改一行 → 重跑 → 圖自動更新</div>
+    <div class="split" style="position:relative">
+      <div class="codecard anim">
+        <div class="bar">📓 2_Model_Development.ipynb · cell [3]</div>
+        <pre><span class="c"># ROC 曲線</span>
+ax.plot(fpr, tpr,
+   color=<span class="s">'<span id="colorval">#2f6df6</span>'</span>,
+   lw=<span class="k">2.5</span>,
+   label=<span class="s">f'AUC = {auc:.3f}'</span>)
+ax.set_title(<span class="s">'ROC — cross-validated'</span>)
+fig.savefig(<span class="s">'../Figures/fig2_roc.png'</span>)</pre>
+      </div>
+      <div class="figwrap anim"><img src="assets/fig2_roc.png" alt="ROC"></div>
+      <div class="changechip" id="chip" style="left:300px;top:150px">改這裡 ✏️</div>
+    </div>
+  </section>
+
+  <!-- 12 FIGURE GRID -->
+  <section class="scene" data-dur="7500">
+    <div class="kicker anim center" style="margin-bottom:40px">所有圖表都由 Notebook 自動產生（真實輸出）</div>
+    <div class="fgrid">
+      <div class="fg anim"><img src="assets/fig1_feature_selection.png"></div>
+      <div class="fg anim"><img src="assets/fig2_roc.png"></div>
+      <div class="fg anim"><img src="assets/fig3_calibration.png"></div>
+      <div class="fg anim"><img src="assets/fig4_km_derivation.png"></div>
+      <div class="fg anim"><img src="assets/fig5_roc_external.png"></div>
+      <div class="fg anim"><img src="assets/fig6_km_external.png"></div>
+    </div>
+  </section>
+
+  <!-- 12b LIVE DEMO BRIDGE -->
+  <section class="scene divider" data-dur="4200">
+    <div class="step-tag anim" style="color:var(--green)">● LIVE DEMO</div>
+    <div class="ttl anim" style="margin-top:10px">實際操作</div>
+    <div class="sub anim" style="margin-top:14px">在真實的 JupyterLab 裡，親手重現一次</div>
+  </section>
+
+  <!-- 13 DIVIDER 4 -->
+  <section class="scene divider" data-dur="3000">
+    <div class="num anim">04</div>
+    <div class="step-tag anim">NEXT</div>
+    <div class="ttl anim">撰寫 Manuscript ＆ 文獻</div>
+  </section>
+
+  <!-- 14 MANUSCRIPT -->
+  <section class="scene" data-dur="6500">
+    <h1 class="anim" style="font-size:62px">分析做完，<span class="grad">換你發揮創意</span></h1>
+    <div class="sub anim">用 AI 協助整理結果、草擬段落、找相關文獻 —<br>但你才是研究的主導者。</div>
+  </section>
+
+  <!-- 15 WARNING -->
+  <section class="scene" data-dur="10000">
+    <div class="warn anim">
+      <div class="ic">⚠️</div>
+      <h2>小心 Reference Hallucination</h2>
+      <p>AI 很適合協助「分析與寫程式」，<br>但<b>引用文獻時可能編造看似真實、實則不存在</b>的參考資料。</p>
+      <p class="small">在沒有高階 harness（評估框架）支援下，目前的 AI 並非 100% 可靠。<br><b>每一篇 reference，都要親自查證。</b></p>
+    </div>
+  </section>
+
+  <!-- 16 RECAP -->
+  <section class="scene" data-dur="8500">
+    <div class="kicker anim center" style="margin-bottom:40px">回顧：你的可重現研究流程</div>
+    <div class="recap">
+      <div class="crow anim"><div class="ck">✓</div>結構化資料夾：Data · Figures · Notebooks · Tables</div>
+      <div class="crow anim"><div class="ck">✓</div>GitHub ＋ Git：每次修改都有版本紀錄</div>
+      <div class="crow anim"><div class="ck">✓</div>AI Agent：說明 Outcome＆方法，要求寫成 Notebooks</div>
+      <div class="crow anim"><div class="ck">✓</div>可重現＆方便修正：圖表程式碼都留在 Notebook</div>
+      <div class="crow anim"><div class="ck">✓</div>查證每一篇文獻，避免幻覺</div>
+    </div>
+  </section>
+
+  <!-- 17 OUTRO -->
+  <section class="scene" data-dur="6500">
+    <h1 class="anim"><span class="grad">Reproducible.</span></h1>
+    <div class="sub anim" style="margin-top:18px">可重現 · 透明 · 完全由你掌控</div>
+    <div class="tag anim">本影片所有資料與成果皆為虛構示範，僅供教學使用</div>
+  </section>
+
+  <div class="caption" id="cap"><span class="pill" id="capt"></span></div>
+</div>
+
+<script>
+// ---------- captions per scene ----------
+const CAPS = [
+  "歡迎！這支影片帶你用 AI，一步一步完成一篇臨床研究。",       // 0 title
+  "整個流程只有五個步驟，我們一個一個來。",                     // 1 agenda
+  "",                                                            // 2 divider 01
+  "第一步：把研究整理成結構化的資料夾：Data、Figures、Notebooks、Tables。", // 3 tree
+  "在終端機一行指令，就能建好這四個資料夾。",                   // 4 mkdir
+  "",                                                            // 5 divider 02
+  "第二步：建立 GitHub Repo，用 Git 版本控制 —— 每次 commit 都是一個存檔點。", // 6 git
+  "",                                                            // 7 divider 03
+  "第三步，最關鍵：告訴 AI 你的預期成果與分析方法，並要求把過程寫成 Notebook。", // 8 chat
+  "因為寫成 Notebook，帶來兩個關鍵好處。",                       // 9 why notebooks
+  "改一行程式、重新執行，圖就自動更新 —— 這就是可重現性。",      // 10 repro demo
+  "這些都是用示範資料跑出來的真實圖表。",                       // 11 figure grid
+  "接下來，我們在真實的 JupyterLab 裡，親手重現一次。",          // 12 LIVE DEMO divider
+  "",                                                            // 13 divider 04
+  "接著就是撰寫 Manuscript、尋找文獻，發揮你的創意。",           // 14 manuscript
+  "最後，務必注意「文獻幻覺」—— 每一篇 reference 都要親自查證。", // 15 warning
+  "把五個步驟串起來，你就有一套可重現的研究流程。",             // 16 recap
+  "可重現、透明，而且完全由你掌控。"                            // 17 outro
+];
+
+function typewriter(el, text, cps){
+  return new Promise(res=>{
+    el.textContent=''; let i=0;
+    const cur=document.createElement('span'); cur.className='cursor'; el.after(cur);
+    const t=setInterval(()=>{
+      el.textContent=text.slice(0,++i);
+      if(i>=text.length){clearInterval(t); cur.remove(); res();}
+    }, 1000/cps);
+  });
+}
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+
+async function playScene(scene, idx){
+  // caption
+  const cap=document.getElementById('cap'), capt=document.getElementById('capt');
+  if(CAPS[idx]){ capt.textContent=CAPS[idx]; cap.classList.add('show'); }
+  else cap.classList.remove('show');
+
+  scene.classList.add('active');
+  // stagger anim children
+  const items=scene.querySelectorAll('.anim');
+  items.forEach((el,i)=>{ el.style.transitionDelay=(i*0.16)+'s'; });
+
+  const dur=+scene.dataset.dur||6000;
+
+  // special: typewriter terminals
+  const tw=scene.querySelector('[data-tw]');
+  if(tw){
+    await sleep(700);
+    await typewriter(tw, tw.dataset.tw, 18);
+    // reveal following output lines progressively
+    const outs=scene.querySelectorAll('.tw-out');
+    for(const o of outs){ await sleep(450); o.style.opacity=1; }
+  }
+
+  // special: repro demo color change + chip
+  if(scene.querySelector('#colorval')){
+    const chip=scene.querySelector('#chip'); const colorval=scene.querySelector('#colorval'); const img=scene.querySelector('.figwrap img');
+    await sleep(2600);
+    chip.style.transition='opacity .4s, transform .4s'; chip.style.opacity=1; chip.style.transform='translateY(0)';
+    await sleep(900);
+    colorval.textContent='#e64980'; colorval.style.color='#7df0c8';
+    chip.textContent='重跑 ▶'; chip.style.background='#4f9cff'; chip.style.color='#06122b';
+    await sleep(800);
+    img.style.transition='filter .5s'; img.style.filter='hue-rotate(300deg) saturate(1.3)';
+    chip.textContent='圖更新了 ✓'; chip.style.background='#2ee6a6'; chip.style.color='#04201a';
+  }
+
+  // hide tw-out initially
+  await sleep(Math.max(0, dur - (tw?2500:0)));
+
+  scene.classList.remove('active'); scene.classList.add('leaving');
+  await sleep(560);
+  scene.classList.remove('leaving');
+  items.forEach(el=>el.style.transitionDelay='');
+}
+
+async function run(){
+  // hide tw-out lines at start
+  document.querySelectorAll('.tw-out').forEach(o=>o.style.opacity=0);
+  document.querySelectorAll('.tw-out').forEach(o=>o.style.transition='opacity .4s');
+  await document.fonts.ready;
+  window.__ready=true;
+  // wait for external start trigger (recorder) or autostart after 400ms
+  await new Promise(res=>{ window.__start=res; setTimeout(()=>window.__start&&res(),1200); });
+
+  const all=[...document.querySelectorAll('.scene')];
+  const q=new URLSearchParams(location.search);
+  const from=q.has('from')?+q.get('from'):0;
+  const to=q.has('to')?+q.get('to'):all.length-1;
+  // progress bar spans the FULL deck so segments line up visually
+  const grand=all.reduce((s,sc)=>s+(+sc.dataset.dur)+560,0);
+  let elapsed=all.slice(0,from).reduce((s,sc)=>s+(+sc.dataset.dur)+560,0);
+  const prog=document.getElementById('prog');
+  for(let i=from;i<=to;i++){
+    const start=performance.now();
+    const dur=(+all[i].dataset.dur)+560;
+    const tick=setInterval(()=>{prog.style.width=Math.min(100,(elapsed+(performance.now()-start))/grand*100)+'%';},100);
+    await playScene(all[i], i);
+    clearInterval(tick); elapsed+=dur; prog.style.width=(elapsed/grand*100)+'%';
+  }
+  document.getElementById('cap').classList.remove('show');
+  await sleep(400);
+  window.__deckDone=true;
+}
+run();
+</script>
+</body>
+</html>

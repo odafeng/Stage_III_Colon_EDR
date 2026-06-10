@@ -69,3 +69,6 @@ video_build/node_modules/
 video_build/clips/
 video_build/output/
 tutorial_demo/_html/
+video_build/norm/
+video_build/dbg.mjs
+video_build/pwtest.mjs
