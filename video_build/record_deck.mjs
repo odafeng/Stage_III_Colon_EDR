@@ -6,7 +6,7 @@ const q = (FROM!==undefined && TO!==undefined) ? `?from=${FROM}&to=${TO}` : '';
 const OUT = '/tmp/deckvid_' + NAME;
 fs.rmSync(OUT, { recursive:true, force:true });
 const b = await chromium.launch({ args:['--force-color-profile=srgb','--disable-gpu','--disable-dev-shm-usage'] });
-const ctx = await b.newContext({ viewport:{width:1920,height:1080}, deviceScaleFactor:1,
+const ctx = await b.newContext({ viewport:{width:1920,height:1080}, deviceScaleFactor:2,
   recordVideo:{ dir:OUT, size:{width:1920,height:1080} } });
 const p = await ctx.newPage();
 p.on('pageerror', e=>console.log('PAGEERR', e.message));

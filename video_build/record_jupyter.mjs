@@ -5,7 +5,7 @@ fs.rmSync(OUT, { recursive: true, force: true });
 const URL = 'http://127.0.0.1:8899';
 
 const b = await chromium.launch({ args:['--disable-gpu','--disable-dev-shm-usage'] });
-const ctx = await b.newContext({ viewport:{width:1920,height:1080}, deviceScaleFactor:1,
+const ctx = await b.newContext({ viewport:{width:1920,height:1080}, deviceScaleFactor:2,
   recordVideo:{ dir:OUT, size:{width:1920,height:1080} } });
 const p = await ctx.newPage();
 const sleep = ms => p.waitForTimeout(ms);

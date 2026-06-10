@@ -26,6 +26,8 @@ html,body{width:1920px;height:1080px;overflow:hidden;background:var(--bg0);
 .blob.b3{width:360px;height:360px;left:60%;top:8%;background:#1fb6a8;animation-delay:-11s}
 @keyframes drift{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(40px,30px) scale(1.12)}}
 .grid-ov{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.025) 1px,transparent 1px);background-size:64px 64px;mask-image:radial-gradient(circle at 50% 50%,black,transparent 80%)}
+/* subtle dither to break dark-gradient banding */
+.noise{position:absolute;inset:0;z-index:2;pointer-events:none;opacity:.05;background-image:url("assets/noise.png");background-size:220px 220px;mix-blend-mode:overlay}
 
 /* brand + progress + caption */
 .brand{position:absolute;left:60px;top:46px;display:flex;align-items:center;gap:14px;z-index:40;opacity:.9}
@@ -143,6 +145,7 @@ h1{font-size:96px;font-weight:900;line-height:1.05;letter-spacing:-1px;text-alig
 <div id="stage">
   <div class="bg"><div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div></div>
   <div class="grid-ov"></div>
+  <div class="noise"></div>
   <div class="progress" id="prog"></div>
   <div class="brand"><div class="logo"></div><div class="t">臨床研究工作流程<small>AI · REPRODUCIBLE · STEP BY STEP</small></div></div>
 
@@ -419,12 +422,12 @@ async function run(){
   document.querySelectorAll('.tw-out').forEach(o=>o.style.opacity=0);
   document.querySelectorAll('.tw-out').forEach(o=>o.style.transition='opacity .4s');
   await document.fonts.ready;
+  const q=new URLSearchParams(location.search);
   window.__ready=true;
-  // wait for external start trigger (recorder) or autostart after 400ms
-  await new Promise(res=>{ window.__start=res; setTimeout(()=>window.__start&&res(),1200); });
+  // wait for external start trigger; autostart after 1.2s UNLESS in frame-capture mode (cap)
+  await new Promise(res=>{ window.__start=res; if(!q.has('cap')) setTimeout(()=>window.__start&&res(),1200); });
 
   const all=[...document.querySelectorAll('.scene')];
-  const q=new URLSearchParams(location.search);
   const from=q.has('from')?+q.get('from'):0;
   const to=q.has('to')?+q.get('to'):all.length-1;
   // progress bar spans the FULL deck so segments line up visually
