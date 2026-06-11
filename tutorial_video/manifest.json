@@ -1,0 +1,84 @@
+[
+  {
+    "type": "deck",
+    "name": "b0",
+    "from": 0,
+    "to": 8
+  },
+  {
+    "type": "clip",
+    "id": "vid4"
+  },
+  {
+    "type": "clip",
+    "id": "vid7"
+  },
+  {
+    "type": "deck",
+    "name": "b1",
+    "from": 9,
+    "to": 11
+  },
+  {
+    "type": "clip",
+    "id": "vid5"
+  },
+  {
+    "type": "clip",
+    "id": "vid6a"
+  },
+  {
+    "type": "deck",
+    "name": "b2a",
+    "from": 12,
+    "to": 20
+  },
+  {
+    "type": "clip",
+    "id": "vid6b"
+  },
+  {
+    "type": "deck",
+    "name": "b2b",
+    "from": 21,
+    "to": 36
+  },
+  {
+    "type": "clip",
+    "id": "vid1"
+  },
+  {
+    "type": "clip",
+    "id": "vid3"
+  },
+  {
+    "type": "clip",
+    "id": "vid2"
+  },
+  {
+    "type": "deck",
+    "name": "b3m",
+    "from": 37,
+    "to": 40
+  },
+  {
+    "type": "clip",
+    "id": "vidA"
+  },
+  {
+    "type": "deck",
+    "name": "b_val",
+    "from": 41,
+    "to": 42
+  },
+  {
+    "type": "clip",
+    "id": "vidB"
+  },
+  {
+    "type": "deck",
+    "name": "b4",
+    "from": 43,
+    "to": 43
+  }
+]
