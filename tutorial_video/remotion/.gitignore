@@ -1,0 +1,7 @@
+node_modules/
+out/
+.remotion/
+*.log
+
+# demo recordings are copies of ../clips (tracked there); build_final/World copies them in
+public/clips/
