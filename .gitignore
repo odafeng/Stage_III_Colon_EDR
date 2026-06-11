@@ -73,3 +73,14 @@ video_build/norm/
 video_build/dbg.mjs
 video_build/pwtest.mjs
 video_build/norm4k/
+
+# Tutorial video — raw footage & build intermediates (keep only output/*.mp4)
+教學影片/
+tutorial_video/clips/
+tutorial_video/norm/
+tutorial_video/pptx_frames/
+tutorial_video/probe/
+tutorial_video/node_modules
+tutorial_video/output/*.pptx
+/tmp/
+tutorial_video/output/tutorial_final.mp4

@@ -1,0 +1,909 @@
+[
+ {
+  "id": "vid1",
+  "maps_to": "段9：Claude Code 跑 EDA（資料 shape、dtypes/缺失、分布、一致性檢查、find_raw 唯讀載入、builder script 產生 notebook）",
+  "output_target_sec": 96,
+  "timeline_notes": "0-15s 歡迎畫面與任務提示（要求對 raw_data.csv 做 EDA、寫成 notebook、data/raw 唯讀）。15-30s 第一個動作：ls 資料夾、印出 shape (330,40)。30-50s dtypes/缺失總覽、Dx_Year 與 Sex 分布。50-62s 一致性檢查（LNR、Log_CEA、DFS>OS=0）。62-96s 更多檢查；約84-96s 出現 brace 權限確認提示。96-145s 權限提示停在畫面（閒置死時間）。約150s ln/log maxdiff 結果。150-186s thinking + nbformat 套件檢查（約174s）。186-270s 超長 thinking 凍結（只有 token 計數在跳，純死時間，硬剪）。285s 寫出 .build_nb.py（277行 builder script）。300-315s nbconvert 執行、權限提示、NameError Path 錯誤。330-345s 更新 build_nb.py（補 pathlib、加 find_raw 唯讀載入器）、nbconvert 寫出 notebook。360s 成功：notebook 建好 402KB、4 張圖嵌入、原始檔未動。375-411s EDA 總結報告（8 點結構、必須處理清單、需留意清單、一致性檢查結果）。",
+  "segments": [
+   {
+    "src_start": 9,
+    "src_end": 17.5,
+    "speed": 1.3,
+    "note": "任務提示：對 raw_data.csv 做 EDA、寫成 notebook、data/raw 唯讀"
+   },
+   {
+    "src_start": 22,
+    "src_end": 31,
+    "speed": 1.15,
+    "note": "第一動作：摸資料 shape (330,40)"
+   },
+   {
+    "src_start": 33,
+    "src_end": 47,
+    "speed": 1.2,
+    "note": "dtypes/缺失 + Dx_Year/Sex 分布"
+   },
+   {
+    "src_start": 50,
+    "src_end": 60,
+    "speed": 1.2,
+    "note": "一致性檢查 LNR / Log_CEA / DFS>OS=0"
+   },
+   {
+    "src_start": 83,
+    "src_end": 92,
+    "speed": 1.3,
+    "note": "brace 權限確認提示出現"
+   },
+   {
+    "src_start": 146,
+    "src_end": 154,
+    "speed": 1.15,
+    "note": "ln/log maxdiff 結果 — CEA 轉換對不上"
+   },
+   {
+    "src_start": 170,
+    "src_end": 180,
+    "speed": 1.3,
+    "note": "確認 nbformat/jupyter 套件可用"
+   },
+   {
+    "src_start": 281,
+    "src_end": 292,
+    "speed": 1.4,
+    "note": "寫出 .build_nb.py builder script"
+   },
+   {
+    "src_start": 305,
+    "src_end": 312,
+    "speed": 1.3,
+    "note": "nbconvert 執行權限提示 + NameError"
+   },
+   {
+    "src_start": 336,
+    "src_end": 350,
+    "speed": 1.15,
+    "note": "find_raw 唯讀載入器 + 補 pathlib"
+   },
+   {
+    "src_start": 357,
+    "src_end": 368,
+    "speed": 1.1,
+    "note": "成功：notebook 402KB、4 圖嵌入、原始檔未動"
+   },
+   {
+    "src_start": 374,
+    "src_end": 388,
+    "speed": 1.2,
+    "note": "EDA 8 點結構總結 + 必須處理清單"
+   },
+   {
+    "src_start": 393,
+    "src_end": 406,
+    "speed": 1.15,
+    "note": "需留意清單 + 一致性檢查結論 + 下一步建議"
+   }
+  ],
+  "subtitles": [
+   {
+    "start": 0,
+    "end": 4,
+    "text": "段9：讓 Claude Code 自己探索這份資料"
+   },
+   {
+    "start": 4,
+    "end": 8.5,
+    "text": "任務：對去識別化的大腸癌資料做 EDA"
+   },
+   {
+    "start": 8.5,
+    "end": 12.5,
+    "text": "結果寫成 notebook，原始檔嚴禁更動"
+   },
+   {
+    "start": 12.5,
+    "end": 17,
+    "text": "它先摸清楚資料：共 330 筆、40 個欄位"
+   },
+   {
+    "start": 17,
+    "end": 21.5,
+    "text": "接著看每欄的型別與缺失比例"
+   },
+   {
+    "start": 21.5,
+    "end": 26.5,
+    "text": "並列出診斷年份與性別的分布"
+   },
+   {
+    "start": 26.5,
+    "end": 31.5,
+    "text": "再做一致性檢查，確認欄位邏輯沒矛盾"
+   },
+   {
+    "start": 31.5,
+    "end": 36,
+    "text": "例如：沒有人的無病存活比總存活還長"
+   },
+   {
+    "start": 36,
+    "end": 40.5,
+    "text": "遇到要執行指令時，它會先停下來問你"
+   },
+   {
+    "start": 40.5,
+    "end": 44.5,
+    "text": "確認過才動手，安全又透明"
+   },
+   {
+    "start": 44.5,
+    "end": 49.5,
+    "text": "它也抓到 CEA 的對數轉換對不上原值"
+   },
+   {
+    "start": 49.5,
+    "end": 53.5,
+    "text": "懷疑來源公式不同，這點先標記起來"
+   },
+   {
+    "start": 53.5,
+    "end": 58,
+    "text": "確認 jupyter 等套件都裝好、可用"
+   },
+   {
+    "start": 58,
+    "end": 63,
+    "text": "然後寫一支 builder script 來生成 notebook"
+   },
+   {
+    "start": 63,
+    "end": 67.5,
+    "text": "過程中跳出小錯誤，它自己看 traceback"
+   },
+   {
+    "start": 67.5,
+    "end": 71.5,
+    "text": "立刻補上修正，不用你介入"
+   },
+   {
+    "start": 71.5,
+    "end": 76.5,
+    "text": "關鍵：用唯讀方式載入原始檔 find_raw"
+   },
+   {
+    "start": 76.5,
+    "end": 80.5,
+    "text": "確保只看資料、絕不改到原始檔案"
+   },
+   {
+    "start": 80.5,
+    "end": 85.5,
+    "text": "成功！notebook 建好，4 張圖都嵌進去"
+   },
+   {
+    "start": 85.5,
+    "end": 89.5,
+    "text": "原始檔全程未被更動，安全過關"
+   },
+   {
+    "start": 89.5,
+    "end": 93.5,
+    "text": "最後它整理出必須處理與需留意的清單"
+   },
+   {
+    "start": 93.5,
+    "end": 96.5,
+    "text": "下一步就能接著做資料清理了"
+   }
+  ]
+ },
+ {
+  "id": "vid2",
+  "maps_to": "段9：VS Code 開 01_eda.ipynb 成果（2.1 結構性缺失 vs 真實缺失、checks 程式碼與輸出）",
+  "output_target_sec": 24,
+  "timeline_notes": "0-5s 桌面資料夾；5-9s VS Code 啟動歡迎畫面；11-16s notebook 標題「01 — 大腸癌術後資料集 EDA」與第一個程式碼 cell（find_raw、imports、df.head 形狀輸出）；約24s「1. 欄位字典與編碼說明」資料字典表；約30s「2. 型別與缺失值總覽」overview 程式碼與缺失比例表（Chart_No 100%、Recurrence_Type 82.7%）；約36s 缺失比例長條圖；39-46s 核心「2.1 結構性缺失 vs 真實缺失」checks 程式碼與 count 輸出（不該發生皆為0，Recurrence_Type 缺失273=結構性），含判讀文字「視為 N/A by design 而非待補值」；48-51s 數值直方圖與「4. 類別變項次數分配」；57s cat_cols value_counts 輸出；60s「5. 結局 (outcome) 概況」；63s report 一致性檢查 result 表；66-77s「7. 異常與需要你決策的地方」紅黃綠優先級清單；77s 出現錄影工具列結束。",
+  "segments": [
+   {
+    "src_start": 6,
+    "src_end": 9,
+    "speed": 2,
+    "note": "VS Code 啟動歡迎畫面，快速帶過"
+   },
+   {
+    "src_start": 11.5,
+    "src_end": 16,
+    "speed": 1.3,
+    "note": "notebook 標題與目標說明，第一個程式碼 cell"
+   },
+   {
+    "src_start": 23,
+    "src_end": 26,
+    "speed": 1.8,
+    "note": "欄位字典編碼說明表，捲動帶過"
+   },
+   {
+    "src_start": 29.5,
+    "src_end": 33,
+    "speed": 1.2,
+    "note": "型別與缺失值總覽表，停留可讀"
+   },
+   {
+    "src_start": 35.5,
+    "src_end": 38,
+    "speed": 1.3,
+    "note": "缺失比例長條圖"
+   },
+   {
+    "src_start": 39,
+    "src_end": 47,
+    "speed": 1,
+    "note": "核心：2.1 結構性缺失 vs 真實缺失 checks 程式碼與輸出，全速讓觀眾讀"
+   },
+   {
+    "src_start": 59.5,
+    "src_end": 62.5,
+    "speed": 1.5,
+    "note": "結局 outcome 概況"
+   },
+   {
+    "src_start": 65.5,
+    "src_end": 70.5,
+    "speed": 1.6,
+    "note": "異常與需要你決策的地方，紅黃綠優先級清單"
+   }
+  ],
+  "subtitles": [
+   {
+    "start": 0,
+    "end": 2,
+    "text": "打開 VS Code，看實際產出的 notebook"
+   },
+   {
+    "start": 2,
+    "end": 5.4,
+    "text": "這是第一份成果：大腸癌術後資料集的 EDA"
+   },
+   {
+    "start": 5.4,
+    "end": 8.5,
+    "text": "開頭先說明資料來源與這份分析的目標"
+   },
+   {
+    "start": 8.5,
+    "end": 10.2,
+    "text": "先看欄位字典與編碼說明"
+   },
+   {
+    "start": 10.2,
+    "end": 13.2,
+    "text": "接著是型別與缺失值總覽"
+   },
+   {
+    "start": 13.2,
+    "end": 15,
+    "text": "有些欄位缺失比例非常高"
+   },
+   {
+    "start": 15,
+    "end": 17,
+    "text": "用長條圖一眼看出哪些欄位缺最多"
+   },
+   {
+    "start": 17,
+    "end": 20.5,
+    "text": "重點來了：分清結構性缺失與真實缺失"
+   },
+   {
+    "start": 20.5,
+    "end": 23.5,
+    "text": "病人沒復發，復發日期當然是空的"
+   },
+   {
+    "start": 23.5,
+    "end": 26.5,
+    "text": "這段程式逐一驗證：不該發生的都是 0"
+   },
+   {
+    "start": 26.5,
+    "end": 29,
+    "text": "代表這類缺失是設計使然，不必硬補值"
+   },
+   {
+    "start": 29,
+    "end": 31.5,
+    "text": "再看結局：復發與死亡的整體概況"
+   },
+   {
+    "start": 31.5,
+    "end": 34.5,
+    "text": "最後列出異常與需要你決策的地方"
+   },
+   {
+    "start": 34.5,
+    "end": 37.5,
+    "text": "用紅黃綠標出優先級，方便逐項處理"
+   }
+  ]
+ },
+ {
+  "id": "vid3",
+  "maps_to": "段9：Claude Code 對 EDA 結果做總結並提出 cleaning 決策，把決策權留給使用者",
+  "output_target_sec": 76,
+  "timeline_notes": "0-155s: AI 的 EDA 總結畫面靜止（紅色「必須處理」: Chart_No 全空白、Log_CEA 對不上、代碼簿缺、預設因子高缺失；黃色「需留意」: 世代僅含 AJCC Stage III、競爭風險83死46復發、LN_Total<12 22人、稀有類別；綠色「通過」: 主鍵唯一、四日期可解析；並說明會另開 02_clean.ipynb 不動原始資料），同時使用者在輸入框逐字打回覆決策（5→145s 持續增長到「1.刪Chart_No 2.重算Log 3.Sex mapping 4.listwise+中位數」）。155-185s: AI thinking（Flibbertigibbeting/Musing），產出對使用者決策的「反問/糾正」。195-255s: AI 指出 Sex mapping 衝突（你給0/1但原始是1/2）、Log_CEA 沒指定底數、要求確認刪哪些欄；接著彈出互動勾選對話框（Tumor_Location、Histology、Differentiation、Death_Cause checkbox）。255-295s: 使用者勾選確認，AI 記錄 answers 後再 thinking。305-345s: AI 產出最終決策計畫（Sex→{1:Male,2:Female}、ln(CEA)、刪6欄、listwise、中位數補、保留結構性缺失），開始建 02_clean.ipynb，寫 .build_clean.py。345-395s: 執行 nbconvert、驗證 330→294列 40→34欄、清理暫存。395-410s: 最終總結表格 + 詢問是否做 MICE/敏感度分析。",
+  "segments": [
+   {
+    "src_start": 3,
+    "src_end": 18,
+    "speed": 1,
+    "note": "AI EDA 總結全貌：紅黃綠三層異常標記，給觀眾讀畫面時間"
+   },
+   {
+    "src_start": 18,
+    "src_end": 55,
+    "speed": 2.5,
+    "note": "使用者逐字打回覆，加速帶過"
+   },
+   {
+    "src_start": 88,
+    "src_end": 96,
+    "speed": 1,
+    "note": "看清使用者完整決策回覆四點"
+   },
+   {
+    "src_start": 96,
+    "src_end": 158,
+    "speed": 3,
+    "note": "繼續打字補完 listwise/中位數，快速帶過"
+   },
+   {
+    "src_start": 158,
+    "src_end": 172,
+    "speed": 2.5,
+    "note": "AI thinking 轉圈，加速"
+   },
+   {
+    "src_start": 192,
+    "src_end": 210,
+    "speed": 1,
+    "note": "關鍵：AI 反問—Sex mapping 衝突、Log 沒底數、要確認刪哪些欄"
+   },
+   {
+    "src_start": 245,
+    "src_end": 262,
+    "speed": 1,
+    "note": "互動勾選對話框出現：四個欄位 checkbox 讓使用者決定"
+   },
+   {
+    "src_start": 262,
+    "src_end": 286,
+    "speed": 2.5,
+    "note": "使用者勾選並 Submit，AI 記錄 answers"
+   },
+   {
+    "src_start": 305,
+    "src_end": 322,
+    "speed": 1,
+    "note": "AI 最終決策計畫：Sex→1Male2Female、ln、刪6欄、listwise、中位數、保留結構性缺失"
+   },
+   {
+    "src_start": 345,
+    "src_end": 392,
+    "speed": 3,
+    "note": "建 notebook、執行、驗證 330→294列，加速帶過"
+   },
+   {
+    "src_start": 393,
+    "src_end": 410,
+    "speed": 1,
+    "note": "最終總結表格 + 詢問是否做 MICE/敏感度分析"
+   }
+  ],
+  "subtitles": [
+   {
+    "start": 0,
+    "end": 4,
+    "text": "EDA 跑完，AI 把所有發現整理成一張清單"
+   },
+   {
+    "start": 4,
+    "end": 8.5,
+    "text": "紅燈：一定要處理。黃燈：要留意。綠燈：已通過檢查"
+   },
+   {
+    "start": 8.5,
+    "end": 12.5,
+    "text": "紅燈包含 Chart_No 整欄空白、CEA 數值對不上"
+   },
+   {
+    "start": 12.5,
+    "end": 15,
+    "text": "還有缺少代碼簿、幾個關鍵欄位缺很多"
+   },
+   {
+    "start": 15,
+    "end": 19.5,
+    "text": "黃燈提醒：這份世代只含第三期、要注意競爭風險"
+   },
+   {
+    "start": 19.5,
+    "end": 25,
+    "text": "接著醫師在輸入框打下自己的決策回覆"
+   },
+   {
+    "start": 25,
+    "end": 30,
+    "text": "重點是：AI 標出異常，但最後怎麼做由你決定"
+   },
+   {
+    "start": 30,
+    "end": 35,
+    "text": "醫師回覆四點：刪空欄、重算 CEA、設定性別對映、缺值處理"
+   },
+   {
+    "start": 35,
+    "end": 40,
+    "text": "AI 開始思考，準備回應這些決策"
+   },
+   {
+    "start": 40,
+    "end": 45,
+    "text": "關鍵時刻：AI 反過來提醒你有衝突"
+   },
+   {
+    "start": 45,
+    "end": 50,
+    "text": "你給的性別對映是 0/1，但原始資料其實是 1/2"
+   },
+   {
+    "start": 50,
+    "end": 53.5,
+    "text": "直接照做會把資料弄壞，AI 請你再確認一次"
+   },
+   {
+    "start": 53.5,
+    "end": 58,
+    "text": "AI 還彈出勾選清單，讓你逐項決定要刪哪些欄位"
+   },
+   {
+    "start": 58,
+    "end": 62,
+    "text": "醫師勾選確認後送出，決策被完整記錄下來"
+   },
+   {
+    "start": 62,
+    "end": 67,
+    "text": "AI 整合成最終計畫：對映、取對數、刪欄、補值都列清楚"
+   },
+   {
+    "start": 67,
+    "end": 71,
+    "text": "並且只動新 notebook，原始資料完全不碰"
+   },
+   {
+    "start": 71,
+    "end": 74,
+    "text": "執行後驗證：樣本從 330 列清理為 294 列"
+   },
+   {
+    "start": 74,
+    "end": 76.5,
+    "text": "最後附上總結表，再問你要不要做敏感度分析"
+   }
+  ]
+ },
+ {
+  "id": "vid4",
+  "maps_to": "段2：瀏覽器看 git-scm.com/install/mac 安裝 Git 頁面",
+  "output_target_sec": 18,
+  "timeline_notes": "0-4s: Google 搜尋「git」結果頁，git-scm.com 為第一筆。約5-7s: 進入 git-scm.com 首頁，滑鼠移到右側「Install for Mac」按鈕。約8-12s: 進入 Install 頁面（macOS 分頁），滑鼠掠過 Windows 分頁。約12-29s: 停在 macOS 安裝頁，列出 Homebrew、MacPorts、Xcode Command Line Tools 等選項，畫面大致靜止僅滑鼠微動（可加速）。約30-32s: 誤點進 Windows 分頁，顯示 Windows 下載選項（離題，可加速帶過）。約33-42s: 切回 macOS 分頁，滑鼠停在 Homebrew 連結與 git-gui 連結附近。",
+  "segments": [
+   {
+    "src_start": 1,
+    "src_end": 4,
+    "speed": 1.3,
+    "note": "Google 搜尋 git 結果，git-scm 第一筆，略快帶過"
+   },
+   {
+    "src_start": 5,
+    "src_end": 8,
+    "speed": 1,
+    "note": "git-scm 首頁，Install for Mac 按鈕，正常速度讓觀眾看清"
+   },
+   {
+    "src_start": 8,
+    "src_end": 12,
+    "speed": 1,
+    "note": "進入 Install 頁 macOS 分頁，正常速度"
+   },
+   {
+    "src_start": 12,
+    "src_end": 24,
+    "speed": 2.5,
+    "note": "macOS 安裝頁靜止，加速帶過 Homebrew/MacPorts/Xcode 選項"
+   },
+   {
+    "src_start": 33.5,
+    "src_end": 42.5,
+    "speed": 2,
+    "note": "切回 macOS 分頁，停在 Homebrew 區，加速收尾"
+   }
+  ],
+  "subtitles": [
+   {
+    "start": 0,
+    "end": 2.3,
+    "text": "先 Google 搜尋 git，第一筆就是官方網站"
+   },
+   {
+    "start": 2.3,
+    "end": 5.3,
+    "text": "點進 git-scm.com，這是 Git 的官方頁面"
+   },
+   {
+    "start": 5.3,
+    "end": 8.3,
+    "text": "右邊有個 Install for Mac 按鈕，按下去"
+   },
+   {
+    "start": 8.3,
+    "end": 11.8,
+    "text": "進到安裝說明，預設就停在 macOS 分頁"
+   },
+   {
+    "start": 11.8,
+    "end": 14.5,
+    "text": "Mac 上最簡單的方式是用 Homebrew"
+   },
+   {
+    "start": 14.5,
+    "end": 16.6,
+    "text": "輸入 brew install git 就能安裝"
+   },
+   {
+    "start": 16.6,
+    "end": 18.5,
+    "text": "頁面也列出其他安裝選項，選一個就好"
+   }
+  ]
+ },
+ {
+  "id": "vid5",
+  "maps_to": "段3：Terminal 用 cd Desktop &amp;&amp; mkdir -p My_Research 建立專案資料夾",
+  "output_target_sec": 17,
+  "timeline_notes": "來源全長 55.8s。0-5s：桌面，終端機尚未開啟（游標移動）。約 5-6s：終端機視窗開啟，顯示空白提示字元 (base)。6-42s：逐字輸入長指令 cd Desktop &amp;&amp; mkdir -p My_Research &amp;&amp; cd My_Research &amp;&amp; mkdir -p Data Manuscripts Figures Tables Notebooks（打字很慢）。約 42s：指令執行完畢，提示字元回到 My_Research 目錄。42-47s：停在已完成的提示字元上（閒置）。約 48s：開啟 Finder 顯示 My_Research 資料夾。49-55.8s：Finder 視窗開啟，顯示 5 個子資料夾 Data、Figures、Manuscripts、Notebooks、Tables。",
+  "segments": [
+   {
+    "src_start": 5.4,
+    "src_end": 7.2,
+    "speed": 1,
+    "note": "終端機剛開啟，空白提示字元，開始輸入指令"
+   },
+   {
+    "src_start": 7.2,
+    "src_end": 42,
+    "speed": 5,
+    "note": "逐字輸入長指令，加速帶過冗長打字過程"
+   },
+   {
+    "src_start": 42,
+    "src_end": 44.5,
+    "speed": 1,
+    "note": "指令執行完畢，提示字元回到 My_Research，正常速度讓觀眾看清"
+   },
+   {
+    "src_start": 47.8,
+    "src_end": 49.2,
+    "speed": 1.5,
+    "note": "開啟 Finder 檢視資料夾"
+   },
+   {
+    "src_start": 49.2,
+    "src_end": 55.8,
+    "speed": 1.3,
+    "note": "Finder 視窗顯示 5 個子資料夾，成果畫面"
+   }
+  ],
+  "subtitles": [
+   {
+    "start": 0,
+    "end": 2,
+    "text": "打開終端機，準備建立專案資料夾"
+   },
+   {
+    "start": 2,
+    "end": 5.5,
+    "text": "一行指令就能一次建好整個專案結構"
+   },
+   {
+    "start": 5.5,
+    "end": 9,
+    "text": "先進到桌面，再建立 My_Research 主資料夾"
+   },
+   {
+    "start": 9,
+    "end": 11.5,
+    "text": "接著一次建立五個子資料夾"
+   },
+   {
+    "start": 11.5,
+    "end": 14,
+    "text": "資料、稿件、圖、表格、筆記，全部到位"
+   },
+   {
+    "start": 14,
+    "end": 15.5,
+    "text": "打開 Finder 確認成果"
+   },
+   {
+    "start": 15.5,
+    "end": 17.5,
+    "text": "五個資料夾都建好了，專案結構清楚整齊"
+   }
+  ]
+ },
+ {
+  "id": "vid7",
+  "maps_to": "段2/段8：不會就直接問 AI，並準備打開 Claude Code",
+  "output_target_sec": 40,
+  "timeline_notes": "來源約133秒。0-12s在claude.ai空白對話框逐字打「要怎麼安裝Claude Code」；~13s送出問題。15-30s AI思考/技能檢查訊息(慢、可加速)。30-62s AI抓官方文件、搜尋結果出現(8 results，docs.claude.com)。62-78s持續fetching並轉入回答。78-88s回答完整呈現：依平台不同的安裝指令(macOS/Linux/WSL用curl -fSSL install.sh，Windows PowerShell用irm install.ps1)，並列出環境重點。88-92s開啟終端機視窗。92-110s貼上curl安裝指令並執行，Setting up Claude Code。110-124s Installing native build。124-130s「Claude Code successfully installed! Version 2.1.170」「Installation complete!」。130-133s結尾。",
+  "segments": [
+   {
+    "src_start": 4,
+    "src_end": 13,
+    "speed": 2.2,
+    "note": "在claude.ai對話框打字問「要怎麼安裝Claude Code」，加速帶過打字"
+   },
+   {
+    "src_start": 16,
+    "src_end": 30,
+    "speed": 3,
+    "note": "送出後AI思考/技能檢查，純等待大幅加速"
+   },
+   {
+    "src_start": 60,
+    "src_end": 70,
+    "speed": 1.8,
+    "note": "AI抓官方文件、出現8筆搜尋結果，略加速但仍看得到在搜尋"
+   },
+   {
+    "src_start": 78,
+    "src_end": 88,
+    "speed": 1,
+    "note": "回答完整呈現安裝指令(curl / PowerShell)，正常速給觀眾讀"
+   },
+   {
+    "src_start": 89,
+    "src_end": 96,
+    "speed": 1.8,
+    "note": "開啟終端機、貼上curl安裝指令，加速"
+   },
+   {
+    "src_start": 105,
+    "src_end": 122,
+    "speed": 2.5,
+    "note": "安裝過程跑進度，等待時間大幅加速"
+   },
+   {
+    "src_start": 123,
+    "src_end": 132,
+    "speed": 1,
+    "note": "安裝成功訊息與版本號，正常速讓觀眾看清楚完成"
+   }
+  ],
+  "subtitles": [
+   {
+    "start": 0,
+    "end": 4.2,
+    "text": "不會裝？沒關係，直接問 AI 就好"
+   },
+   {
+    "start": 4.2,
+    "end": 8,
+    "text": "在對話框打：要怎麼安裝 Claude Code"
+   },
+   {
+    "start": 8,
+    "end": 12.5,
+    "text": "送出後，AI 會自己去查官方安裝文件"
+   },
+   {
+    "start": 12.5,
+    "end": 17.5,
+    "text": "它正在搜尋，找出最新、最正確的步驟"
+   },
+   {
+    "start": 17.5,
+    "end": 22,
+    "text": "幾秒後，答案就整理好了"
+   },
+   {
+    "start": 22,
+    "end": 27,
+    "text": "它會依你的系統給對應指令"
+   },
+   {
+    "start": 27,
+    "end": 32,
+    "text": "Mac 或 Linux 用 curl 這行就能裝"
+   },
+   {
+    "start": 32,
+    "end": 36,
+    "text": "接著打開終端機，貼上指令執行"
+   },
+   {
+    "start": 36,
+    "end": 40,
+    "text": "看到安裝成功，就能開始用了"
+   }
+  ]
+ },
+ {
+  "id": "vid6a",
+  "maps_to": "段3",
+  "output_target_sec": 0,
+  "segments": [
+   {
+    "src_start": 4,
+    "src_end": 7,
+    "speed": 1.5,
+    "note": "從 dashboard 切到 New repository 表單，加速帶過開場"
+   },
+   {
+    "src_start": 10,
+    "src_end": 19,
+    "speed": 1.6,
+    "note": "輸入 repo 名稱與 description，加速顯示打字過程"
+   },
+   {
+    "src_start": 22,
+    "src_end": 28,
+    "speed": 2,
+    "note": "捲動檢視 Configuration 設定選項，純捲動加速"
+   },
+   {
+    "src_start": 35,
+    "src_end": 41,
+    "speed": 1.5,
+    "note": "按下建立並等待 repo 頁載入完成"
+   },
+   {
+    "src_start": 42,
+    "src_end": 55,
+    "speed": 1,
+    "note": "Quick setup 頁的 git 指令，關鍵閱讀片刻，正常速度"
+   },
+   {
+    "src_start": 55,
+    "src_end": 61,
+    "speed": 1.2,
+    "note": "開啟 Terminal，輸入 mkdir 建立子資料夾與 git init"
+   }
+  ],
+  "subtitles": [
+   {
+    "start": 0,
+    "end": 3.2,
+    "text": "我們先到 GitHub 建立一個新的 repository"
+   },
+   {
+    "start": 3.2,
+    "end": 8.5,
+    "text": "在 New repository 頁面，填好專案名稱"
+   },
+   {
+    "start": 8.5,
+    "end": 12.5,
+    "text": "這裡命名為 demo_tutorial，並加上簡短說明"
+   },
+   {
+    "start": 12.5,
+    "end": 16,
+    "text": "往下捲動，可以設定公開或私人"
+   },
+   {
+    "start": 16,
+    "end": 19.5,
+    "text": "以及 README、gitignore、授權等選項"
+   },
+   {
+    "start": 19.5,
+    "end": 23.5,
+    "text": "確認沒問題後，按下建立 repository"
+   },
+   {
+    "start": 23.5,
+    "end": 28,
+    "text": "建立完成，GitHub 會給我們一個空的倉庫"
+   },
+   {
+    "start": 28,
+    "end": 33,
+    "text": "Quick setup 這一段是重點，請看這些指令"
+   },
+   {
+    "start": 33,
+    "end": 37.5,
+    "text": "它教我們如何用命令列把專案推上 GitHub"
+   },
+   {
+    "start": 37.5,
+    "end": 41,
+    "text": "接著打開 Terminal，回到自己的電腦"
+   },
+   {
+    "start": 41,
+    "end": 45.5,
+    "text": "用 mkdir 一次建好五個子資料夾"
+   },
+   {
+    "start": 45.5,
+    "end": 49.5,
+    "text": "Data、Manuscripts、Figures、Tables、Notebooks"
+   },
+   {
+    "start": 49.5,
+    "end": 53.5,
+    "text": "再用 git init 把資料夾變成版本控制的專案"
+   }
+  ]
+ },
+ {
+  "id": "vid6b",
+  "maps_to": "段5",
+  "output_target_sec": 0,
+  "segments": [
+   {
+    "src_start": 61,
+    "src_end": 76,
+    "speed": 1.4,
+    "note": "git init 執行、git add、git commit 逐步輸入"
+   },
+   {
+    "src_start": 76,
+    "src_end": 96,
+    "speed": 1.6,
+    "note": "git branch -M main 與 git remote add origin 設定"
+   },
+   {
+    "src_start": 96,
+    "src_end": 105,
+    "speed": 1,
+    "note": "git push -u origin main 推送，關鍵成果片刻"
+   },
+   {
+    "src_start": 105,
+    "src_end": 112,
+    "speed": 1.3,
+    "note": "推送輸出與 branch main 追蹤 origin 完成"
+   }
+  ],
+  "subtitles": [
+   {
+    "start": 0.0,
+    "end": 4.0,
+    "text": "依序 git add 與 git commit，記錄第一次提交"
+   },
+   {
+    "start": 4.0,
+    "end": 8.0,
+    "text": "設定主分支 main，並連結遠端的 GitHub 倉庫"
+   },
+   {
+    "start": 8.0,
+    "end": 12.5,
+    "text": "最後 git push，把本機檔案推送上去"
+   },
+   {
+    "start": 12.5,
+    "end": 16.5,
+    "text": "看到 branch main 已追蹤 origin，就成功了"
+   },
+   {
+    "start": 16.5,
+    "end": 20.5,
+    "text": "整個研究專案的版本管理架構就建好了"
+   }
+  ]
+ }
+]
