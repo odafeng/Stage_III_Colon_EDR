@@ -25,7 +25,10 @@ from googleapiclient.errors import HttpError
 from googleapiclient.http import MediaFileUpload
 
 HERE = Path(__file__).resolve().parent
-SCOPES = ["https://www.googleapis.com/auth/youtube.upload"]
+SCOPES = [
+    "https://www.googleapis.com/auth/youtube.upload",
+    "https://www.googleapis.com/auth/youtube.force-ssl",
+]
 CLIENT_SECRET = HERE / "client_secret.json"
 TOKEN = HERE / "token.json"
 METADATA = HERE / "metadata.json"
@@ -53,12 +56,31 @@ def main():
     ap.add_argument("--file", default=str(DEFAULT_FILE))
     ap.add_argument("--privacy", default="public", choices=["public", "unlisted", "private"])
     ap.add_argument("--auth-only", action="store_true")
+    ap.add_argument("--update", metavar="VIDEO_ID", help="update an existing video's title/description/tags from metadata.json")
     args = ap.parse_args()
 
     creds = get_credentials()
     youtube = build("youtube", "v3", credentials=creds)
+
+    ch = youtube.channels().list(part="snippet", mine=True).execute()
+    channel = ch["items"][0]["snippet"]["title"] if ch.get("items") else "(no channel on this account)"
+    print(f"authorised channel: 「{channel}」")
+
     if args.auth_only:
         print("OAuth OK — token saved to", TOKEN.name)
+        return
+
+    if args.update:
+        meta = json.loads(METADATA.read_text())
+        body = {"id": args.update, "snippet": {
+            "title": meta["title"], "description": meta["description"],
+            "tags": meta.get("tags", []), "categoryId": meta.get("categoryId", "27"),
+            "defaultLanguage": meta.get("defaultLanguage", "zh-Hant")}}
+        try:
+            youtube.videos().update(part="snippet", body=body).execute()
+        except HttpError as e:
+            sys.exit(f"YouTube API error {e.resp.status}: {e.content.decode()[:400]}")
+        print(f"✅ metadata updated → https://youtu.be/{args.update}")
         return
 
     video = Path(args.file)
