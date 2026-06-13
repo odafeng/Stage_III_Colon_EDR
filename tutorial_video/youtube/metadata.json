@@ -1,0 +1,8 @@
+{
+  "title": "你不必變成工程師：用白話指揮 AI 做臨床研究分析，然後親自驗收",
+  "description": "做臨床研究，你不必先變成工程師。關鍵是用白話指揮 AI 寫出程式碼，然後親自驗收——把臨床研究變成一條能重跑、可重現的分析流水線。\n\n這支影片用一個合成的第三期大腸癌復發資料集，示範從 EDA、建模到親自逐格驗收的完整流程，並講清楚四塊地基與兩個鐵則。\n\n章節\n0:00 你不必變成工程師\n0:12 你的工作方式：指揮 → AI 寫 → 你驗收\n0:28 地基一 · 結構化資料夾\n0:46 地基二 · Git 與版本控制\n1:05 地基三 · 病人個資隔離\n1:25 地基四 · 寫成 step-by-step notebook\n1:44 實作：對去識別化資料做 EDA\n2:24 實作：建 logistic regression 模型\n3:01 親自打開 notebook、逐格驗收\n3:32 兩個鐵則\n3:47 怎麼開始\n4:05 結語：本質上就是一場 vibe coding\n\n⚠️ 本影片所有資料與成果皆為虛構合成，僅供教學使用，不構成任何臨床建議。",
+  "tags": ["臨床研究", "醫學研究", "AI", "vibe coding", "Claude Code", "Python", "pandas", "scikit-learn", "statsmodels", "logistic regression", "資料分析", "病人個資", "去識別化", "Git", "Jupyter notebook", "Google Colab"],
+  "categoryId": "27",
+  "defaultLanguage": "zh-Hant",
+  "defaultAudioLanguage": "zh-Hant"
+}

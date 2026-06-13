@@ -1,0 +1,9 @@
+
+# API keys — never commit
+.secrets/
+*.key
+.env
+
+# YouTube OAuth secrets
+youtube/client_secret.json
+youtube/token.json
