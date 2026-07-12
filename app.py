@@ -42,6 +42,9 @@ MODEL_PATH       = os.path.join(MODEL_DIR, "final_model_calibrated.pkl")
 
 
 AJCC_OPTIONS = ["IIIA", "IIIB", "IIIC"]
+# Map the display labels to the category codes used when the model was trained
+# (the training data encoded AJCC substage as "3A"/"3B"/"3C").
+AJCC_LABEL_TO_CODE = {"IIIA": "3A", "IIIB": "3B", "IIIC": "3C"}
 DIFF_OPTIONS = [
     ("Well", 1),
     ("Moderate", 2),
@@ -167,8 +170,13 @@ if st.button("Calculate risk", type="primary", use_container_width=True):
         differentiation=diff_num,
     )
 
-    # Reindex to training feature space (CRITICAL)
-    X_aligned = X_raw.reindex(columns=feature_cols)
+    # One-hot encode AJCC substage, then align to the exact training feature space.
+    # CRITICAL: reindex alone does NOT create the one-hot columns, so the categorical
+    # substage must be encoded first (and mapped to the training category codes);
+    # fill_value=0 sets the unselected substage dummies to 0 rather than leaving them NaN.
+    X_raw["AJCC_Substage"] = X_raw["AJCC_Substage"].map(AJCC_LABEL_TO_CODE)
+    X_encoded = pd.get_dummies(X_raw, columns=["AJCC_Substage"])
+    X_aligned = X_encoded.reindex(columns=feature_cols, fill_value=0)
 
     # Impute
     try:
