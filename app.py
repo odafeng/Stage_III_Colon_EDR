@@ -27,6 +27,14 @@ st.caption(
     "For academic and research use."
 )
 
+st.warning(
+    "**Intended use — margin-negative (R0) resections only.** "
+    "This calculator was developed and validated exclusively in patients with a complete, "
+    "margin-negative (R0) resection. It is **not applicable** to patients with a positive "
+    "resection margin (R1/R2 resection), in whom residual disease—rather than the pathological "
+    "features used here—is the dominant determinant of recurrence."
+)
+
 # =========================
 # Constants
 # =========================
@@ -199,6 +207,12 @@ if st.button("Calculate risk", type="primary", use_container_width=True):
     # Output
     # =========================
     st.subheader("Result")
+
+    st.warning(
+        "**Valid only for margin-negative (R0) resections.** "
+        "Disregard this result if the resection margin was positive (R1/R2)."
+    )
+
     st.metric("Predicted probability of EDR-18", f"{proba:.3f}")
 
     if proba >= DEFAULT_THRESHOLD:
