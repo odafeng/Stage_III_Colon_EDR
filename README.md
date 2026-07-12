@@ -76,6 +76,14 @@ Apply the finalized four-variable model to an independent external cohort.
 - Perform **Cox regression** for high- vs low-risk groups.
 - Generate Kaplan–Meier curves in the external cohort (overall and subgroups).
 
+### Peer-review revision analyses
+
+Added during peer review, using the same modeling pipeline and `random_state = 8251`:
+
+- **`4.Revision_MSKCC_Variable_Comparison.ipynb`** — compares the four-variable model against a conventional clinicopathologic model built on the MSKCC nomogram variable set (DeLong test), in both cohorts.
+- **`5.Revision_MSI_Sensitivity.ipynb`** — sensitivity analysis adding microsatellite instability (MSI) status to the four-variable model.
+- **`6.Revision_Broadened_Recurrence_Sensitivity.ipynb`** — sensitivity analyses under broadened outcome definitions (recurrence within 24 months; any recurrence).
+
 ---
 
 ## Data Location and File Naming
