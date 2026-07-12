@@ -147,6 +147,9 @@ if lnr_mode == "Compute from nodes":
         ln_total = st.number_input("Total lymph nodes examined", min_value=0, value=12, step=1)
     with c2:
         ln_pos = st.number_input("Positive lymph nodes", min_value=0, value=1, step=1)
+    if ln_pos > ln_total:
+        st.error("Positive lymph nodes cannot exceed total lymph nodes examined.")
+        st.stop()
     lnr = compute_lnr(ln_pos, ln_total)
     if not np.isnan(lnr):
         st.info(f"Computed LNR = **{lnr:.3f}**")

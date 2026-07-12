@@ -1,0 +1,23 @@
+# Analysis / notebook dependencies (Python 3.11)
+# Separate from the Streamlit calculator runtime (../requirements.txt).
+# Install with:  pip install -r notebooks/requirements-analysis.txt
+# Pins follow the %pip install cells in notebooks 2 and 3 and the imports across notebooks 1-9.
+
+# --- Base scientific stack ---
+numpy==1.26.4
+pandas==2.2.0
+scipy==1.16.3
+scikit-learn==1.4.0
+matplotlib==3.8.0
+
+# --- Modeling / analysis ---
+xgboost==3.1.2
+statsmodels==0.14.0
+lifelines==0.28.0
+shap==0.44.0
+joblib==1.3.0
+
+# --- Data I/O, plotting, reporting ---
+pyarrow==15.0.0
+seaborn==0.13.0
+python-docx==1.1.0
