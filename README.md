@@ -22,12 +22,14 @@ This repository has grown across two rounds of work, and the notebooks do **not*
 
 - **Notebooks 1–3 — original development (pre-revision).** These reproduce the *original* submission's pipeline: feature selection, model development, and the first external validation.
 - **Notebooks 4–6 — revision sensitivity analyses (superseded numbers).** These were added during peer review. They report **mean-of-fold** AUCs (AUC averaged across the outer CV folds). These per-fold-averaged numbers are **not** the ones in the current manuscript and are retained only for provenance.
-- **Notebooks 7–9 — reproduce the CURRENT manuscript.** These use **pooled out-of-fold (OOF)** predictions with a single harmonized decision threshold, and they **supersede notebooks 4–6**:
+- **Notebooks 7–11 — reproduce the CURRENT manuscript.** These use **pooled out-of-fold (OOF)** predictions with a single harmonized decision threshold, and they **supersede notebooks 4–6**:
   - **`7.Revision_PooledOOF_Harmonization.ipynb`** — internal pooled-OOF harmonization; regenerates the main-text performance table and **Figure 2** (`Figure_2_Model_Performance.png` / `.tiff`).
   - **`8.Revision_External_Harmonization.ipynb`** — external cohort **Table 3** with **DeLong** tests.
   - **`9.Revision_External_Figures.ipynb`** — external **Figures S3** (calibration) and **S4** (risk-stratified Kaplan–Meier).
+  - **`10.Revision_DFS_Figures.ipynb`** — regenerates the disease-free-survival Kaplan–Meier figures **Figure 3** (ML-risk-stratified DFS) and **Figure S2** (AJCC-substage DFS) on the finalized model.
+  - **`11.Revision_SHAP_Figure4.ipynb`** — regenerates **Figure 4** (SHAP summary) for the finalized Table S2 model, computed on the uncalibrated base estimator, at ≥1200 dpi TIFF plus a vector PDF.
 
-**In short:** for the current manuscript's tables and figures, run notebooks **7, 8, and 9**. Notebooks 4–6 retain the earlier mean-of-fold numbers and should not be quoted as the manuscript results.
+**In short:** for the current manuscript's tables and figures, run notebooks **7 through 11**. Notebooks 4–6 retain the earlier mean-of-fold numbers and should not be quoted as the manuscript results.
 
 ---
 
@@ -45,7 +47,9 @@ This repository has grown across two rounds of work, and the notebooks do **not*
 │   ├── 7.Revision_PooledOOF_Harmonization.ipynb        # CURRENT manuscript: table + Figure 2
 │   ├── 8.Revision_External_Harmonization.ipynb         # CURRENT manuscript: Table 3 + DeLong
 │   ├── 9.Revision_External_Figures.ipynb               # CURRENT manuscript: Figures S3/S4
-│   └── Figure_2 / Figure_S3 / Figure_S4 (.png/.tiff)   # figures written by notebooks 7 and 9
+│   ├── 10.Revision_DFS_Figures.ipynb                   # CURRENT manuscript: Figures 3 + S2 (DFS KM)
+│   ├── 11.Revision_SHAP_Figure4.ipynb                  # CURRENT manuscript: Figure 4 (SHAP)
+│   └── Figure_2 / 3 / 4 / S2 / S3 / S4 (.png/.tiff/.pdf) # figures written by notebooks 7, 9, 10, 11
 ├── model/
 │   ├── final_model_calibrated.pkl                      # calibrated model pipeline
 │   ├── final_feature_columns.pkl                       # ordered feature-column list
@@ -94,7 +98,7 @@ This repository has grown across two rounds of work, and the notebooks do **not*
 
 ### Peer-review revision analyses (notebooks 4–9)
 
-All revision notebooks use the same modeling pipeline and `random_state = 8251 (SEED)`. Notebooks 4–9 locate data through a `find_data_dir()` helper that searches for a `local_data/` folder, and load model artifacts from `model/`.
+All revision notebooks use the same modeling pipeline and `random_state = 8251 (SEED)`. Notebooks 4–11 locate data through a `find_data_dir()` helper that searches for a `local_data/` folder, and load model artifacts from `model/`.
 
 **Superseded (mean-of-fold) sensitivity analyses:**
 
@@ -107,6 +111,8 @@ All revision notebooks use the same modeling pipeline and `random_state = 8251 (
 - **`7.Revision_PooledOOF_Harmonization.ipynb`** — pools out-of-fold predictions across folds and applies one harmonized threshold; regenerates the main-text internal performance table and **Figure 2**.
 - **`8.Revision_External_Harmonization.ipynb`** — external cohort **Table 3** with **DeLong** comparisons.
 - **`9.Revision_External_Figures.ipynb`** — external **Figure S3** (calibration/performance) and **Figure S4** (risk-stratified Kaplan–Meier).
+- **`10.Revision_DFS_Figures.ipynb`** — regenerates **Figure 3** (ML-risk-stratified DFS Kaplan–Meier) and **Figure S2** (DFS by AJCC substage) from the finalized model.
+- **`11.Revision_SHAP_Figure4.ipynb`** — regenerates **Figure 4** (SHAP summary) for the finalized Table S2 model. SHAP is computed on the uncalibrated base XGBoost estimator; the figure is written as a ≥1200 dpi LZW TIFF and a vector PDF.
 
 ---
 
@@ -116,7 +122,7 @@ No data or schema files ship with this repository. The notebooks read the follow
 
 | File | Used by | Contents |
 |------|---------|----------|
-| `all_cases_prepared_for_ML.parquet` | 1 (output), 2, 4, 5, 6, 7, 8, 9 | ML-ready **derivation** cohort (one row per patient). |
+| `all_cases_prepared_for_ML.parquet` | 1 (output), 2, 4, 5, 6, 7, 8, 9, 10, 11 | ML-ready **derivation** cohort (one row per patient). |
 | `post_EDA.parquet` | 1 (input) | Derivation cohort after exploratory data analysis, before final ML prep. |
 | `raw_data_EDA.csv` | 3 (input) | Raw **external** cohort table. |
 | `EDA_Ext_Val.parquet` | 3 (output), 9 | External validation cohort **with DFS survival fields**. |
@@ -177,7 +183,7 @@ pip install -r requirements.txt
 
 1. Create your data folder and add your datasets:
    - Notebooks **1–3** read from `../data/` (create a `data/` directory at the repo root).
-   - Notebooks **4–9** search for a `local_data/` directory via `find_data_dir()`; create one and place `all_cases_prepared_for_ML.parquet`, `data_typed_ext.csv`, `EDA_Ext_Val.parquet`, and `Patient_Cohort.xlsx` there. Model artifacts are loaded from `model/`.
+   - Notebooks **4–11** search for a `local_data/` directory via `find_data_dir()`; create one and place `all_cases_prepared_for_ML.parquet`, `data_typed_ext.csv`, `EDA_Ext_Val.parquet`, and `Patient_Cohort.xlsx` there. Model artifacts are loaded from `model/`.
 2. Open the notebooks in JupyterLab, Jupyter Notebook, or VS Code.
 3. Run in this order, according to what you need:
    - **Original development pipeline (pre-revision results):**
@@ -192,7 +198,9 @@ pip install -r requirements.txt
      7. `7.Revision_PooledOOF_Harmonization.ipynb` — internal table + **Figure 2**
      8. `8.Revision_External_Harmonization.ipynb` — **Table 3** + DeLong
      9. `9.Revision_External_Figures.ipynb` — **Figures S3 / S4**
-4. Review generated figures, metrics, and model outputs. When reporting results, use the **pooled-OOF** numbers from notebooks 7–9, which supersede the mean-of-fold numbers in notebooks 4–6.
+     10. `10.Revision_DFS_Figures.ipynb` — **Figures 3 / S2** (DFS Kaplan–Meier)
+     11. `11.Revision_SHAP_Figure4.ipynb` — **Figure 4** (SHAP)
+4. Review generated figures, metrics, and model outputs. When reporting results, use the **pooled-OOF** numbers from notebooks 7–11, which supersede the mean-of-fold numbers in notebooks 4–6.
 
 ---
 
