@@ -70,9 +70,13 @@ from xgboost import XGBClassifier
 # --------------------------------------------------------------------------- #
 SEED = 8251
 
-# Finalized Supplementary Table S2 hyperparameters (most frequently selected
-# across the outer folds of the original nested CV), held fixed. These match the
-# harness in notebook 7 and the currently deployed artifact.
+# Finalized Supplementary Table S2 hyperparameters, held fixed. This is a
+# pre-specified, parsimonious, strongly regularized configuration chosen a priori
+# for the limited sample size and event count -- NOT the argmax of any single
+# outer fold of the nested CV (which selected a different set in each fold). The
+# nested CV characterized the search space and estimated generalization; it did
+# not pick this deployed configuration. These match the harness in notebook 7 and
+# the deployed artifact.
 TABLE_S2_HPARAMS = dict(
     n_estimators=50,
     max_depth=2,
@@ -181,6 +185,11 @@ def main() -> int:
         **XGB_FIXED,
         scale_pos_weight=scale_pos_weight,
     )
+    # Isotonic calibration is monotone, so the number of calibration folds does
+    # not change discrimination (AUC/DeLong) or the rank order of predictions; it
+    # only shifts the calibrated probabilities slightly. The deployed artifact
+    # uses cv=5 here; the evaluation notebooks (4-11) use cv=3. This difference is
+    # deliberate and does not affect any discrimination-based reported result.
     calibrated = CalibratedClassifierCV(xgb, method="isotonic", cv=5)
     pipeline = Pipeline(
         [
