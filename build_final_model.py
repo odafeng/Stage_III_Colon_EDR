@@ -70,13 +70,14 @@ from xgboost import XGBClassifier
 # --------------------------------------------------------------------------- #
 SEED = 8251
 
-# Finalized Supplementary Table S2 hyperparameters, held fixed. This is a
-# pre-specified, parsimonious, strongly regularized configuration chosen a priori
-# for the limited sample size and event count -- NOT the argmax of any single
-# outer fold of the nested CV (which selected a different set in each fold). The
-# nested CV characterized the search space and estimated generalization; it did
-# not pick this deployed configuration. These match the harness in notebook 7 and
-# the deployed artifact.
+# Fixed Supplementary Table S2 hyperparameters, already reported in the original
+# submission and held unchanged for the revision-stage pooled-OOF analysis. This
+# configuration was not the winning configuration in any individual outer fold
+# of the nested CV. Notebook 7 evaluates this fixed configuration and performs no
+# hyperparameter selection or retuning. The nested CV evaluated the tuning
+# procedure conditional on the four preselected predictors; it did not select the
+# deployed configuration. These values match the harness in notebook 7 and the
+# deployed artifact.
 TABLE_S2_HPARAMS = dict(
     n_estimators=50,
     max_depth=2,
